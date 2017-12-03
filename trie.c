@@ -4,22 +4,22 @@
 
 #define CHAR_SIZE 26
 #define CHAR2INT(x) x-97
+
 typedef struct node trieNode;
 void insert(trieNode *, char *);
-bool search( trieNode *, char *);
-void _delete(trieNode *, char *);
-void display( trieNode *);
+bool search(trieNode *, char *);
+void delete(trieNode **, char *);
+void display(trieNode *);
 trieNode* createNode(bool);
-bool hasChild( trieNode*);
-bool deleteHelper(trieNode *, char *,int);
+bool hasChild(trieNode*);
+bool deleteHelper(trieNode **, char *,int);
 
 typedef struct node{
 	bool isEndOfWord;
 	struct node *child[CHAR_SIZE];
 }trieNode;
 
-
-void insert( trieNode *root, char *string){
+void insert(trieNode *root, char *string){
 	int counter = 0;
 	char ch;
 	trieNode *tempNode = root;
@@ -34,7 +34,7 @@ void insert( trieNode *root, char *string){
 	tempNode->isEndOfWord = true;
 }
 
-bool search( trieNode *root, char *string){
+bool search(trieNode *root, char *string){
 	int counter = 0;
 	char ch;
 	trieNode *tempNode = root;
@@ -46,32 +46,35 @@ bool search( trieNode *root, char *string){
 	return false;
 }
 
-void _delete(trieNode *root, char *string){
-	//free(root);
-	root = NULL;
-	/*
-	root->child[0] = createNode(false);
-	//root->child[0]->child[1] = createNode(false);
-	printf("%p\n", root->child[0]);
-	
-	deleteHelper(root->child[0],"a",0);
-	
-	printf("%p\n", root->child[0]);
-	*/
+void delete(trieNode **root, char *string){
+	deleteHelper(root,string,0);
+	//*root=NULL;
 }
 
-bool deleteHelper(trieNode *root, char *string,int index){
-	printf("%p\n", root);
-	if(!hasChild(root)){
-		puts("! has child");
-		free(root);
-		root = root->child[0];
+bool deleteHelper(trieNode **node, char *string,int index){
+	
+	if(string[index] == '\0')
+		return true;
+	
+	if(*node == NULL)
+		return true;
+	
+	if(deleteHelper(&((*node)->child[CHAR2INT(string[index])]),string,index+1)){
+		if((*node)->isEndOfWord){
+			*node = NULL;
+			return false;
+		}
+		if(hasChild(*node)){
+			return false;
+		}
+		else 
+			return true;
+			
 	}
-	printf("%p\n",root);
+	return false;
 }
 
-
-void display( trieNode *root){
+void display(trieNode *root){
 	int i;
 	trieNode *node = root;
 	for(i=0;i<CHAR_SIZE;i++){
@@ -82,8 +85,6 @@ void display( trieNode *root){
 	}
 
 }
-
-
 
 trieNode* createNode(bool endOfWord){
 	int i;
@@ -104,51 +105,16 @@ bool hasChild( trieNode* node){
 }
 
 int main(){
-	char *strings[] = {"the","these","their","thaw"};
+	char *strings[] = {"the"};//,"these","their","thaw"};
 	trieNode *root = createNode(false);
 	
 	insert(root,strings[0]);
 	//display(root);puts("");
-	insert(root,strings[1]);
-	//display(root);puts("");
-	insert(root,strings[2]);
-	//display(root),puts("");
-	insert(root,strings[3]);
-	//display(root);puts("");
 	
-	/*
-	printf("%s : %d\n",strings[0],search(root,strings[0]));
-	printf("%s : %d\n",strings[1],search(root,strings[1]));
-	printf("%s : %d\n",strings[2],search(root,strings[2]));
-	printf("%s : %d\n",strings[3],search(root,strings[3]));
-	printf("th : %d\n",search(root,"th"));
-	printf("blog : %d\n",search(root,"blog"));
-	printf("home : %d\n",search(root,"home"));
-	
-	puts("th");
-	delete(root,"th");
-	display(root);puts("");
-	puts("blog");
-	delete(root,"blog");
-	display(root);puts("");
-	puts("home");
-	delete(root,"home");
-	display(root);puts("");
-	
-	/*
 	puts(strings[0]);
-	delete(root,strings[0]);
-	display(root);puts("");	
-	puts(strings[1]);
-	delete(root,strings[1]);
-	display(root);puts("");	
-	puts(strings[2]);
-	delete(root,strings[2]);
-	display(root);puts("");	
-	*/
-	puts(strings[3]);
-	_delete(root,strings[3]);
-	display(root);puts("");	
+	delete(&root,strings[0]);
+	if(root!=NULL)
+		display(root);puts("");	
 	
 	return 0;
 }
