@@ -105,16 +105,15 @@ bool hasChild( trieNode* node){
 }
 
 int main(){
-	char *strings[] = {"the"};//,"these","their","thaw"};
+	char *strings[] = {"the","these","their","thaw"};
 	trieNode *root = createNode(false);
 	
 	insert(root,strings[0]);
-	//display(root);puts("");
+	insert(root,strings[1]);
+	insert(root,strings[2]);
+	insert(root,strings[3]);
+	display(root);puts("");
 	
-	puts(strings[0]);
-	delete(&root,strings[0]);
-	if(root!=NULL)
-		display(root);puts("");	
-	
+
 	return 0;
 }
