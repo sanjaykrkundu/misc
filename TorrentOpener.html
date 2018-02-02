@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>torrent</title>
+</head>
+	<script type="text/javascript">
+//([A-Za-z0-9\r])([^\.^\r^\n]+)piemonster.mkv Download
+	var pre = "magnet:?xt=urn:btih:";
+	var post = "&dn=&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80&tr=udp%3A%2F%2Fopentor.org%3A2710&tr=udp%3A%2F%2Ftracker.ccc.de%3A80&tr=udp%3A%2F%2Ftracker.blackunicorn.xyz%3A6969&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969";
+		
+	var list = ["3a508919c8d04fdd14187d3e592ab9eba78c0aea","ad2854dc52ea62ae5aa83d79f943aa640247fe6b","f3a9e1aeafe564d80000d7960c67989a5428f38b","108ce1d7ea44690f297d01f1aa5be60302f2e839","7caf373a64e85dd55ee4f1a6303b39e303371339","76f736566c7d6f1c842bd23087c9be32003c3c98","bc1ee29602031f92ca418954de289e7633bccf09","19e62bdc5976ac701311236587f71f0e0d6348f1"];
+
+
+	var link;
+	var win;
+	for (var i = list.length - 1; i >= 0; i--) {
+		link = pre + list[i]+post;
+		window.open(link);
+		document.write(pre + list[i]+post+"<br>");
+	}
+	</script>
+
+
+<body>
+
+</body>
+</html>
