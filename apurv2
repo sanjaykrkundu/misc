@@ -1,0 +1,121 @@
+#include <iostream>
+#include <cmath>
+#include <stdio.h>
+using namespace std;
+
+int compare (const void * a, const void * b)
+{
+  return ( *(int*)a - *(int*)b );
+}
+
+long long int helper(long long int lower,long long int higher,long long int sum,long long int count,long long diff) {
+    
+    if(higher-lower <=1 ) {
+        
+        long long int produce,need;
+        
+        produce = diff * lower;
+        need = sum - (count * lower);
+        
+        if(produce >= need)
+            return lower;
+        
+        else
+            return higher;
+    }
+    
+    else if(lower < higher) {
+     
+        long long int mid = (lower + higher)/2;
+        long long int produce,need;
+        
+        produce = diff * mid;
+        need = sum - (count * mid);
+        
+        if(produce > need)
+            helper(lower,mid,sum,count,diff);
+        
+        else
+            helper(mid+1,higher,sum,count,diff);
+        
+    }
+}
+
+int main() {
+	
+	int t;
+    long long int n,h,tsum;
+    
+    scanf("%d",&t);
+    
+    for(int i=0;i<t;i++) {
+        
+        scanf("%lld",&n);
+        scanf("%lld",&h);
+        
+        long long int bananas[n];
+        
+        tsum = 0;
+        
+        for(int j=0;j<n;j++) {
+            
+            scanf("%lld",&bananas[j]);
+            tsum += bananas[j];
+        }
+        
+        qsort (bananas, n, sizeof(long long int), compare);
+        
+        
+        if(n == h) {
+            
+            printf("%lld\n",bananas[n-1]);
+        }
+        
+        else if(n == 1) {
+            
+            if(bananas[0] <=h) {
+                
+                printf("1\n");
+            }
+            
+            else {
+                
+                printf("%lld\n",ceil(bananas[0] / h));
+            }
+        }
+        
+        else {
+            
+            long long int sum,produce,count,need,result,diff,ch,avg;
+            
+            count  = 1;
+            sum = 0;
+            diff = (h - n);
+            ch = 1;
+            
+            for(int j=n-2;j>=0;j--) {
+                
+                produce = diff*bananas[j];
+                sum += bananas[j+1];
+                need = sum - (count * bananas[j]);
+                
+                if(produce < need) {
+                    
+                    result = helper(bananas[j],bananas[j+1],sum,count,diff);
+                    printf("%lld\n",result);
+                    ch = 0;
+                    break;
+                }
+                
+                count++;
+            }
+            if(ch) {
+                
+                avg = tsum/h;
+                result = helper(avg,bananas[0],tsum,n-1,diff);
+                 printf("%lld\n",result);
+            }
+        }
+    }
+	return 0;
+}
