@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+bool *graph;
+int *count;
+
+int index(int i,int j,int c){
+    return i*c + j;
+}
+
+bool * readGraph(int n){
+    int u,v,i;
+    bool *graph = (bool *)malloc(n*n*sizeof(bool));
+    for(i=0; i<n-1; i++){
+      scanf("%d %d",&u,&v);
+      //printf("%d %d\n",u,v);
+        graph[index(u-1,v-1,n)]=true;
+        graph[index(v-1,u-1,n)]=true;
+    }
+    return graph;
+}
+
+void showGraph(int n){
+     for(int i=0; i<n; i++){
+        for(int j=0; j<n; j++){
+            if(graph[index(i,j,n)] == true)
+                printf("1 ");
+            else
+                printf("0 ");
+        }
+        puts("");
+     }
+}
+
+void showCount(int n){
+     for(int i=0; i<n; i++){
+        printf("%d : %d\n",i+1,count[i]);
+     }
+}
+
+
+bool visitCounterHelper(int u,int v,int n,int p){
+    //printf("%d %d %d %d \n",u,v,n,p);
+    if(u>n || v>n)
+        return false;
+    if(!graph[index(u-1,v-1,n)]){
+        for(int i=0;i<n;i++){
+            if(graph[index(u-1,i,n)] && i!=p){
+                if(visitCounterHelper(i+1,v,n,u)){
+                    count[i] = count[i]+1;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }else{
+        return true;
+    }
+}
+
+
+void visitCounter(int u,int v,int n){
+    count[u-1] = count[u-1]+1;
+    count[v-1] = count[v-1]+1;
+    if(!graph[index(u-1,v-1,n)])
+        visitCounterHelper(u,v,n,-1);
+}
+
+
+
+int main(void) {
+	int n,m;
+
+    scanf("%d %d",&n,&m);
+    count = (int *)malloc(n*sizeof(int));
+	graph = readGraph(n);
+	
+	//showGraph(n);
+	for(int i=0;i<m;i++){
+	    int a,b;
+	    scanf("%d %d",&a,&b);
+	    visitCounter(a,b,n);
+	}
+	puts("===============");
+	showCount(n);
+	
+	return 0;
+}
+
