@@ -45,7 +45,13 @@ bool visitCounterHelper(int u,int v,int n,int p){
 	int i;
     if(u>n || v>n)
         return false;
-    if(!graph[getIndex(u-1,v-1,n)]){
+    if(graph[getIndex(u-1,v-1,n)]){
+        count[v-1] = count[v-1]+1;
+        if(count[v-1]>max)
+            max = count[v-1];
+        return true;
+    }
+    else{
         for(i=0;i<n;i++){
             if(graph[getIndex(u-1,i,n)] && i+1!=p){
                 if(visitCounterHelper(i+1,v,n,u)){
@@ -57,19 +63,16 @@ bool visitCounterHelper(int u,int v,int n,int p){
             }
         }
         return false;
-    }else{
-        return true;
     }
 }
 
 void visitCounter(int u,int v,int n){
     count[u-1] = count[u-1]+1;
-    count[v-1] = count[v-1]+1;
+    
     if(count[u-1]>max)
         max = count[u-1];
-    if(count[v-1]>max)
-        max = count[v-1];
-    if(!graph[getIndex(u-1,v-1,n)])
+   
+    //if(graph[getIndex(u-1,v-1,n)])
         visitCounterHelper(u,v,n,-1);
 }
 
@@ -88,6 +91,7 @@ int main(int argc, char *a[]) {
 	    visitCounter(a,b,n);
 	}
 	printf("%d\n",max);
+
 	//puts("===============");
 	//showCount(n);
 	
