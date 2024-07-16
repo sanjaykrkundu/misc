@@ -1,0 +1,65 @@
+import subprocess
+import re
+
+def list_usb_devices():
+    try:
+        result = subprocess.run(['lsusb'], capture_output=True, text=True)
+        devices = result.stdout.strip().split('\n')
+        return devices
+    except Exception as e:
+        print(f"Error listing USB devices: {e}")
+        return []
+
+def find_android_device(devices):
+    android_device = None
+    for device in devices:
+        if 'Google' in device or 'Android' in device:  # Assuming 'Google' or 'Android' in the device name
+            android_device = device
+            break
+    return android_device
+
+def get_device_port(device):
+    match = re.search(r'Bus (\d{3}) Device (\d{3}):', device)
+    if match:
+        bus = match.group(1)
+        device_num = match.group(2)
+        return f'/dev/bus/usb/{bus}/{device_num}'
+    else:
+        return None
+
+def reboot_device(device_port):
+    try:
+        with open(device_port, 'wb') as f:
+            f.write(b'REBOOT')
+        print(f"Reboot command sent to device on port {device_port}.")
+    except Exception as e:
+        print(f"Error sending reboot command: {e}")
+
+def main():
+    devices = list_usb_devices()
+    if not devices:
+        print("No USB devices found.")
+        return
+    
+    android_device = find_android_device(devices)
+    if not android_device:
+        print("No Android device found.")
+        return
+    
+    print(f"Found Android device: {android_device}")
+    
+    device_port = get_device_port(android_device)
+    if not device_port:
+        print("Could not determine the port of the Android device.")
+        return
+    
+    print(f"Device is connected on port: {device_port}")
+    
+    reboot = input("Do you want to reboot the device? (yes/no): ").strip().lower()
+    if reboot == 'yes':
+        reboot_device(device_port)
+    else:
+        print("Reboot cancelled.")
+
+if __name__ == "__main__":
+    main()
