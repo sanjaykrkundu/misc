@@ -1,0 +1,57 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+void drawRectangle(unsigned char* image, int width, int height, int x, int y, int rectWidth, int rectHeight, unsigned char color) {
+    // Draw top and bottom lines of the rectangle
+    for (int i = x; i < x + rectWidth; i++) {
+        if (y >= 0 && y < height) image[y * width + i] = color;             // Top line
+        if (y + rectHeight - 1 >= 0 && y + rectHeight - 1 < height)         // Bottom line
+            image[(y + rectHeight - 1) * width + i] = color;
+    }
+
+    // Draw left and right lines of the rectangle
+    for (int i = y; i < y + rectHeight; i++) {
+        if (x >= 0 && x < width) image[i * width + x] = color;             // Left line
+        if (x + rectWidth - 1 >= 0 && x + rectWidth - 1 < width)           // Right line
+            image[i * width + (x + rectWidth - 1)] = color;
+    }
+}
+
+int main() {
+    const int width = 4000, height = 3000;  // Change to your image dimensions
+    const char* inputFilename = "input.raw";   // Input raw image file
+    const char* outputFilename = "output.raw"; // Output raw image file
+
+    // Open the input file in binary mode
+    std::ifstream inputFile(inputFilename, std::ios::binary);
+    if (!inputFile) {
+        std::cerr << "Error opening input file!" << std::endl;
+        return 1;
+    }
+
+    // Read the image data into a buffer
+    std::vector<unsigned char> image(width * height);
+    inputFile.read(reinterpret_cast<char*>(image.data()), image.size());
+    inputFile.close();
+
+    // Define rectangle properties
+    int x = 818, y = 629;       // Starting position (x, y)
+    int rectWidth = 2403, rectHeight = 1806; // Width and height of the rectangle
+    unsigned char color = 255;  // White color for the rectangle
+
+    // Draw the rectangle
+    drawRectangle(image.data(), width, height, x, y, rectWidth, rectHeight, color);
+
+    // Write the modified image to the output file
+    std::ofstream outputFile(outputFilename, std::ios::binary);
+    if (!outputFile) {
+        std::cerr << "Error opening output file!" << std::endl;
+        return 1;
+    }
+    outputFile.write(reinterpret_cast<const char*>(image.data()), image.size());
+    outputFile.close();
+
+    std::cout << "Rectangle drawn and saved to " << outputFilename << std::endl;
+    return 0;
+}
