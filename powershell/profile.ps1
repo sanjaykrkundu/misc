@@ -4,9 +4,11 @@
 
 # ---------- CONFIG ----------
 $PromptTheme = 'Dark'    # Dark | Light
-$CompactMode = $false   # false = multiline | true = one-line
-# $TimeFormat = 'HH:mm:ss' # 24-hour 
-$TimeFormat = 'hh:mm:ss tt' # 12-hour
+$CompactMode = $true   # false = multiline | true = one-line
+$TimeFormat_24 = 'HH:mm:ss' # 24-hour
+$TimeFormat_24_HM = 'HH:mm' # 24-hour
+$TimeFormat_12 = 'hh:mm:ss tt' # 12-hour
+$TimeFormat_12_HM = 'hh:mm tt' # 12-hour
 
 $PromptModules = @{
     User  = $true
@@ -15,6 +17,13 @@ $PromptModules = @{
     ExeTime  = $true
     Exit  = $false
     Admin = $true
+    TimeZones = @(
+        @{ Id = 'India Standard Time'; Label = 'IST' },
+        @{ Id = 'Korea Standard Time'; Label = 'KST' }
+        # @{ Id = 'UTC';                Label = 'UTC' },
+        # @{ Id = 'Pacific Standard Time'; Label = 'PST' },
+        # @{ Id = 'Eastern Standard Time'; Label = 'EST' }
+    )
 }
 
 # ---------- THEMES ----------
@@ -118,9 +127,45 @@ function Is-SshSession {
     return ($env:SSH_CONNECTION -or $env:SSH_CLIENT -or $env:SSH_TTY)
 }
 
-function Get-CurrentTime {
+function Get-CurrentTime($TimeFormat) {
     return (Get-Date).ToString($TimeFormat)
 }
+
+function Get-TimeInZone {
+    param ([string]$ZoneId)
+
+    $tz = [System.TimeZoneInfo]::FindSystemTimeZoneById($ZoneId)
+    $dt = [System.TimeZoneInfo]::ConvertTimeFromUtc(
+        [DateTime]::UtcNow,
+        $tz
+    )
+
+    return $dt
+}
+
+
+function Get-TimeZonesString($TimeFormat){
+    if (-not $PromptModules.Time -or -not $PromptModules.TimeZones) {
+        return
+    }
+
+    $parts = @()
+
+    foreach ($z in $PromptModules.TimeZones) {
+        try {
+            $t = Get-TimeInZone $z.Id
+            $parts += ($t.ToString($TimeFormat) + ' ' + $z.Label)
+        }
+        catch {
+            # ignore invalid timezone IDs
+        }
+    }
+
+    if ($parts.Count -gt 0) {
+        return ($parts -join ' | ')
+    }
+}
+
 
 function Write-Rounded {
     param($Text, $Bg, $Fg, $First, $Last)
@@ -144,7 +189,7 @@ function prompt {
     $exetime  = Get-ExecutionTime
     $admin = if (Is-Admin) { 'ADMIN' }
     $OsSymbol = $SymWindows
-    $time = Get-CurrentTime
+    # $time = Get-CurrentTime($TimeFormat_24)
 
     if (Is-SshSession) {
         $OsSymbol = $SymLinux
@@ -153,6 +198,7 @@ function prompt {
     # ---- COMPACT MODE ----
     if ($CompactMode) {
         $path  = Get-SmartPath
+        $time = Get-TimeZonesString($TimeFormat_24_HM)
         if ($PromptModules.User) {
             Write-Host ($OsSymbol + ' ' + $user + '@' + $hostN + ' ') -NoNewline -ForegroundColor $C.User
         }
@@ -176,6 +222,7 @@ function prompt {
     }
 
     # ---- MULTI-LINE MODE ----
+    $time = Get-TimeZonesString($TimeFormat_24)
 
     Write-Host ($SymTop + $SymLine + ' ') -NoNewline -ForegroundColor $C.Symbol
     Write-Host ($OsSymbol + ' ' + $user + '@' + $hostN + ' ') -NoNewline -ForegroundColor $C.User
